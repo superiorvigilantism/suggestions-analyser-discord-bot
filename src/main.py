@@ -334,7 +334,7 @@ async def set_threshold(ctx, value: float):
     config['threshold'] = value
     save_config()
     logger.info(f"Threshold updated to {value} by {ctx.author}")
-    await ctx.send(f"✓ Threshold updated to **{value}/10** (saved)")
+    await ctx.send(f"✓ Threshold updated to **{value}/10**")
 
 # ============================================================================
 # COMMAND: Set Custom Prompt
