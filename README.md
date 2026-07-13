@@ -56,6 +56,15 @@ And thus you are set
 ## Usage
 The bot will automatically monitor the forum, and whenever a post is made, rate it. If the score surpasses the threshold, it will be sent to your other channel, thus marking it as "worth reviewing"
 
+### Commands
+Current available commands are:
+- !threshold <number>
+	Sets threshold score that a suggestion must score past in order to be forwarded
+- !prompt <text>
+	Sets custom prompt to be used for rating suggestions
+- !promptinfo
+	Shows currently used prompt
+
 ## Requirements/Technology used
 Refer to requirements.txt to see what technologies were used
 
