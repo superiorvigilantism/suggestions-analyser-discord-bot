@@ -53,9 +53,13 @@ Discord.py bot that uses GPT-5.4-nano to automatically rate suggestions posted i
 
 And thus you are set
 
-From now on, the bot will monitor the forum, and whenever a post is made, rate it. If the score surpasses the threshold, it will be sent to your other channel, thus marking it as "worth reviewing"
+## Usage
+The bot will automatically monitor the forum, and whenever a post is made, rate it. If the score surpasses the threshold, it will be sent to your other channel, thus marking it as "worth reviewing"
 
+## Requirements/Technology used
 Refer to requirements.txt to see what technologies were used
+
+---
 
 This project is protected by GNU GENERAL PUBLIC LICENSE v3
 
