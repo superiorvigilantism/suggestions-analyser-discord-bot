@@ -1,4 +1,0 @@
-{
-  "threshold": 1.0,
-  "prompt": "rate suggestions, place in the first line rating in format \"Score: x/10\""
-}
