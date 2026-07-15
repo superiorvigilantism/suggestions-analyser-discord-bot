@@ -14,4 +14,12 @@
 - Reporting critical errors to the promoted suggestions discord channel
 
 ### Fixed
-- threshold not saving after restart of the app
+- Threshold not saving after restart of the app
+
+## [1.1.1] - 2026-07-15
+
+### Added
+- Multi-File structure, where most functions are not in main.py anymore
+
+### Fixed
+- Minor optimization issues such as removing redundant code by merging it together
