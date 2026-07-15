@@ -222,3 +222,6 @@ __marimo__/
 
 # playground is a directory with files designed for testing language's features and has nothing of use to the main code
 playground/
+
+# data/config.json is a file storing your personal config, one is created automatically if booted without it, however recommended to create it by hand as shown in config.json.example
+data/config.json
