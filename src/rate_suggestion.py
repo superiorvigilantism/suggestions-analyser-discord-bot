@@ -4,9 +4,6 @@ import openai
 # load logger object from init_logger.py
 from init_logger import logger
 
-# Import config from config.py
-from config import config
-
 # Import env vars from fetch_creds.py
 from fetch_creds import OPENAI_API_KEY
 
@@ -18,13 +15,13 @@ client = openai.OpenAI(api_key=OPENAI_API_KEY)
 # AI RATING FUNCTION
 # ============================================================================
 
-async def rate_suggestion(title: str, content: str) -> dict:
+async def rate_suggestion(prompt: str, title: str, content: str) -> dict:
     """
     Send suggestion to OpenAI for rating.
     Returns: {'score': float, 'reasoning': str, 'success': bool}
     """
     try:
-        system_prompt = config['prompt']
+        system_prompt = prompt
         user_message = f"Suggestion Title: \n{title}\n\nSuggestion Content:\n{content}"
         
         response = client.chat.completions.create(

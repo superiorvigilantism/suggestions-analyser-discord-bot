@@ -9,16 +9,14 @@ from datetime import datetime
 # Load logger object from init_logger.py
 from init_logger import logger
 
-# Import config from config.py
-from config import config
-
-# Import env vars from fetch_creds.py
-from fetch_creds import FORUM_CHANNEL_ID, PRIVATE_CHANNEL_ID
-
 # Import rate_suggestion function from rate_suggestion.py
 from rate_suggestion import rate_suggestion
 
+# Import get_server_data functions from database.py
+from database import get_server_data
 
+# Just for specifying expected class from config
+from models import ServerData
 
 
 # ============================================================================
@@ -31,10 +29,19 @@ async def on_thread_create(thread: discord.Thread):
     Read the opening message, rate it, and forward if threshold met.
     """
     try:
-        # Verify this thread is in the target forum channel
-        if thread.parent_id != FORUM_CHANNEL_ID:
+        # Fetch the config of particular guild from which the thread came
+        logger.info(f"Thread created: {thread}")
+        config = await get_server_data(thread.guild.id)
+        logger.info(f"Received guild row: {config}")
+        # Check if the channels to listen and to forward to were specified, if not then ignore
+        if (not config.forward_channel_id) and (not config.forum_channel_id):
+
             return
-        
+        logger.info(f"Channels are specified")
+        # Verify this thread is in the target forum channel
+        if thread.parent_id != config.forum_channel_id:
+            logger.info(f"Thread not in the forum channel, {thread.parent_id} != {config.forum_channel_id}")
+            return
         logger.info(f"New forum post detected: '{thread.name}' by {thread.owner}")
         
         # Fetch the opening message (first message in thread)
@@ -52,10 +59,20 @@ async def on_thread_create(thread: discord.Thread):
         
         # Rate the suggestion
         logger.info(f"Rating suggestion: {title}")
-        rating = await rate_suggestion(title, content)
+        rating = await rate_suggestion(config.prompt, title, content)
         
         # Abort rating the suggestion if a critical error occured
         if not rating.get('success', False):
+            await send_to_forward_channel(
+                forward_channel_id=config.forward_channel_id, 
+                title=f"🚨 CRITICAL ERROR:", 
+                author=None, 
+                content=rating.get('reasoning', 'Unknown error'), 
+                score=None, 
+                reasoning=None, 
+                thread_url=None, 
+                is_error=True
+                )
             return
         
         score = rating['score']
@@ -65,8 +82,9 @@ async def on_thread_create(thread: discord.Thread):
                      "{'FORWARDING' if score >= config['threshold'] else 'REJECTED'}")
         
         # Check threshold and forward if approved
-        if score >= config['threshold']:
-            await send_to_private_channel(
+        if score >= config.threshold:
+            await send_to_forward_channel(
+                forward_channel_id=config.forward_channel_id,
                 title=title,
                 author=author,
                 content=content,
@@ -87,15 +105,15 @@ async def on_thread_create(thread: discord.Thread):
 
 # (author, score, reasoning, thread_url) - can be None if the message to be sent is an error and 
 # not a forwarded suggestion
-async def send_to_private_channel(title: str, author: discord.User, content: str, 
+async def send_to_forward_channel(forward_channel_id: int, title: str, author: discord.User, content: str, 
                                      score: float, reasoning: str, thread_url: str, is_error=False):
     """
     Send a message to the private channel. For now, it is either a suggestion forwarded or an error
     """
     try:
-        private_channel = bot.get_channel(PRIVATE_CHANNEL_ID)
-        if not private_channel:
-            logger.error(f"Private channel {PRIVATE_CHANNEL_ID} not found")
+        channel = bot.get_channel(forward_channel_id)
+        if not channel:
+            logger.error(f"Private channel {forward_channel_id} not found")
             return
 
         if is_error:
@@ -110,11 +128,11 @@ async def send_to_private_channel(title: str, author: discord.User, content: str
                 inline=False
             )
 
-            await private_channel.send(embed=embed)
+            await channel.send(embed=embed)
             logger.info(f"Reported an error to the private channel.")
 
         else:
-            # Build forwarded message
+            # Build forward message
             embed = discord.Embed(
                 title=f"✓ Approved: {title}",
                 description=content[:2048] if len(content) <= 2048 else content[:2045] + "...",
@@ -128,7 +146,7 @@ async def send_to_private_channel(title: str, author: discord.User, content: str
             embed.add_field(name="Suggested By", value=f"{author.mention} ({author})", inline=False)
             embed.add_field(name="Original Post", value=f"[View in Forum]({thread_url})", inline=False)
             
-            await private_channel.send(embed=embed)
+            await channel.send(embed=embed)
             logger.info(f"Forwarded '{title}' (score: {score}) to private channel")
     
     except Exception as e:

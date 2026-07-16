@@ -11,17 +11,17 @@ from init_discord import bot
 # Import env vars from fetch_creds.py
 from fetch_creds import DISCORD_TOKEN
 
-# Import config functions "load" and "save" and config var from config.py
-from config import load_config, save_config, config
-
 # Import discord commands from discord_cmds.py
-from discord_cmds import set_threshold, set_prompt, prompt_info
+from discord_cmds import cmd_help, set_forward_channel, set_forum_channel, set_threshold, set_prompt, prompt_info
 
 # Import function on_thread_create from read_send_msgs.py
 from read_send_msgs import on_thread_create
 
+# Import database functions and update_server_data from database.py
+from database import init_db, close_db, update_server_data
+
 # Import env vars from fetch_creds.py
-from fetch_creds import FORUM_CHANNEL_ID, PRIVATE_CHANNEL_ID, DATA_DIR
+from fetch_creds import DATA_DIR
 
 
 # ============================================================================
@@ -32,6 +32,28 @@ from fetch_creds import FORUM_CHANNEL_ID, PRIVATE_CHANNEL_ID, DATA_DIR
 
 # @bot.event
 on_thread_create = bot.event(on_thread_create)
+
+# DECORATING COMMAND: Help
+
+# @bot.command(name='help')
+# @commands.is_owner()
+cmd_help = commands.is_owner()(cmd_help)
+cmd_help = bot.command(name='help')(cmd_help)
+
+
+# DECORATING COMMAND: Set Forward Channel
+
+# @bot.command(name='setforward')
+# @commands.is_owner()
+set_forward_channel = commands.is_owner()(set_forward_channel)
+set_forward_channel = bot.command(name='setforward')(set_forward_channel)
+
+# DECORATING COMMAND: Set Forum Channel
+
+# @bot.command(name='setforum')
+# @commands.is_owner()
+set_forum_channel = commands.is_owner()(set_forum_channel)
+set_forum_channel = bot.command(name='setforum')(set_forum_channel)
 
 # DECORATING COMMAND: Set Threshold
 
@@ -55,23 +77,38 @@ prompt_info = commands.is_owner()(prompt_info)
 prompt_info = bot.command(name='promptinfo')(prompt_info)
 
 # ==================================================
-# FUNCTION: Bot ready up
+# FUNCTIONS: on_ready, on_error, on_guild_join
 # ==================================================
 
 @bot.event
 async def on_ready():
-    logger.info(f"Bot logged in as {bot.user}")
-    logger.info(f"Monitoring forum channel: {FORUM_CHANNEL_ID}")
-    logger.info(f"Forwarding to private channel: {PRIVATE_CHANNEL_ID}")
-    logger.info(f"Current threshold: {config['threshold']}")
-    logger.info(f"Data directory: {DATA_DIR}")
-    logger.info(f"Custom prompt active: {bool(config.get('prompt'))}")
+    # Init the db on startup
+    try:
+        await init_db()
+        logger.info(f"Bot is running")
+    except Exception as e:
+        logger.error(f"Error occured: {e}")
+
+@bot.event
+async def on_error(event, *args, **kwargs):
+    # Close the db in case of an error, not sure if KeyboardInterrupt and/or ctrl+C are supported
+    await close_db()
+    logger.error(f"Error occured in {event} {args} {kwargs}")
+
+@bot.event
+async def on_guild_join(guild):
+    try:
+        await update_server_data(guild.id)
+        pass
+    except discord.Forbidden:
+        logger.error(f"Missing permissions in {guild.name}")
+    except Exception as e:
+        logger.error(f"Error occured: {e}")
 
 # ==================================================
 # * * *
 # ==================================================
 
 if __name__ == '__main__':
-    # Load the config on startup
-    load_config()
+    logger.info('Initializing database')
     bot.run(DISCORD_TOKEN)
