@@ -220,8 +220,15 @@ __marimo__/
 # macOS
 .DS_Store
 
-# playground is a directory with files designed for testing language's features and has nothing of use to the main code
-playground/
+# Ωplayground is a directory with files designed for testing language's features and has nothing of use to the main code
+# Ω Used to sort it last in the file list btw
+Ωplayground/
 
-# data/config.json is a file storing your personal config, one is created automatically if booted without it, however recommended to create it by hand as shown in config.json.example
+# Ignore .db to avoid committing user data into public.
+#   For safety purposes the database is going to be stored outside of project file.
+# 	But the fallback file, if needed is going to be created inside the project.
+*.db
+
+# data/config.json is a file storing your personal config.
+# One is created automatically if booted without it, however recommended to create it by hand as shown in config.json.example
 data/config.json
