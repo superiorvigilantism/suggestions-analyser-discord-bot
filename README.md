@@ -70,6 +70,14 @@ Refer to requirements.txt to see what technologies were used
 
 ---
 
-This project is protected by GNU GENERAL PUBLIC LICENSE v3
+## License
+
+This project is licensed under the **MIT License with Commons Clause**.
+
+This means:
+- You can use, modify, and study the code for personal/non-commercial purposes
+- Commercial use of this code (including selling, charging for access, or using it in a paid product) is not permitted without written permission
+
+See the LICENSE file for more details.
 
 2026-07-13
