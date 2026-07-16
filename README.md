@@ -13,6 +13,8 @@ Discord.py bot that uses GPT-5.4-nano to automatically rate suggestions posted i
    	`source venv/bin/activate`
 4. Install requirements:
    	`pip install -r requirements.txt`
+5. Create .env file in project root directory same as .env.example
+	Replace example values with real ones as you collect them further down the list
 5. Visit Discord Developer Portal and create your application
 	https://discord.com/developers/applications
 	- Create a new application
@@ -37,19 +39,19 @@ Discord.py bot that uses GPT-5.4-nano to automatically rate suggestions posted i
 	- Create a new key/use existing one
 	- Paste it into your .env file
 	- On the home page, Add credits for AI to work.
-	About costs: AI used in code is GPT-5.4-nano, which is currently cheapest non-deprecated model that OpenAI has to offer
+	About costs: AI used in code is GPT-5.4-nano (as of now no option to change given), which is currently cheapest non-deprecated model that OpenAI has to offer
 7. In your Discord server,
 	- Right-click your forum channel
 	- Select "Copy Link"
 	- From the link, copy the number located at the end starting from last slash
 	- Paste the number into your .env file
 	- Perform identical operation with your channel to forward worthy suggestions to
-8. Run the code
-	In the terminal
-	- Navigate to the repo directory
-	- run `python src/main.py`
-	- Set a custom threshold with `!threshold <number>`
-	- WARNING: As of v1.0.0 release, threshold needs to be respecified each time the bot is restarted
+8. Create database in Docker
+	- Download Docker from official website https://www.docker.com/products/docker-desktop/
+	- Open the app on your computer, accept ToS in order to download CLI tool
+	- Back in the terminal (replace values with the ones you need):
+		docker run --name bot_postgres -e POSTGRES_USER=bot_user -e POSTGRES_PASSWORD=bot_password -e POSTGRES_DB=bot_db -p 5432:5432 -d postgres:latest
+	- Paste into your .env file: postgresql+asyncpg://<username>:<password>@localhost:5432/<db_name>
 
 And thus you are set
 

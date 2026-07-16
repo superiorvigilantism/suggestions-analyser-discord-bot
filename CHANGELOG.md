@@ -23,3 +23,14 @@
 
 ### Fixed
 - Minor optimization issues such as removing redundant code by merging it together
+
+## [2.0.0] - 2026-07-16
+
+### Added
+- PostgreSQL database support, replacing the ugly config.json
+	- From now on every server has their config stored in a unified async database. Proud of this one.
+- Commands to change channels to listen and forward to
+- Customized help command
+
+### Fixed
+- Minor optimization issues, including moving to a database approach allows for faster work than with a file afaik
